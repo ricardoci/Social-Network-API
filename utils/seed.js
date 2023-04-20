@@ -1,7 +1,8 @@
 const connection = require('../config/connection');
 const { Post, Tags } = require('../models');
+const User = require('../models/User');
 // Import functions for seed data
-const { getRandomColor, getRandomPost, genRandomIndex } = require('./data');
+const {getRandomColor,getRandomPost, genRandomIndex, getRandomName } = require('./data');
 
 // Start the seeding runtime timer
 console.time('seeding');
@@ -11,11 +12,11 @@ connection.once('open', async () => {
   // Delete the entries in the collection
   await Post.deleteMany({});
   await Tags.deleteMany({});
-
+  await User.deleteMany({});
   // Empty arrays for randomly generated posts and tags
   const tags = [];
   const posts = [];
-
+  const users = [];
   // Function to make a post object and push it into the posts array
   const makePost = (text) => {
     posts.push({
@@ -43,8 +44,25 @@ connection.once('open', async () => {
 
   // Wait for the posts array to be inserted into the database
   await Post.collection.insertMany(posts);
+// 
+for (let i = 0; i < 10; i++) {
+  const name = getRandomName();
+  const newUser = {
+    first: name.split(' ')[0],
+    last: name.split(' ')[1],
+    age: Math.floor(Math.random() * 99 + 1),
+  };
+  users.push(newUser);
+}
+
+// Wait for the users to be inserted into the database
+await User.collection.insertMany(users);
+
+
+
 
   // Log out a pretty table for tags and posts, excluding the excessively long text property
+  console.table(users);
   console.table(tags);
   console.table(posts, ['published', 'tags', '_id']);
   console.timeEnd('seeding');
