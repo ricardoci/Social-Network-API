@@ -1,5 +1,5 @@
 const {  Types } = require('mongoose');
-const { Thought, Reaction } = require('../models');
+const { Thought} = require('../models');
 
 module.exports = {
   async getThought(req, res) {
