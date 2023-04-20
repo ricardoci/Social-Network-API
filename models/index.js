@@ -1,4 +1,4 @@
-const Tags = require('./Tags');
-const Post = require('./Post');
+const Reaction = require('./reactionSchema');
+const Thought = require('./Thought');
 const User = require('./User');
-module.exports = { Tags, Post, User };
+module.exports = { Reaction, Thought, User };
