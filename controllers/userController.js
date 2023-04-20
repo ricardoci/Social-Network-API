@@ -31,4 +31,19 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-};
+
+//  deleteUse
+async deleteUser(req, res) {
+  try {
+    const result = await User.deleteOne({ _id: req.params.userId });
+    if (result.deletedCount === 0) {
+      return res.status(404).send('No user found');
+    }
+    res.send('User deleted');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal server error');
+  }
+}
+
+}

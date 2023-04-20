@@ -68,3 +68,4 @@ await User.collection.insertMany(users);
   console.timeEnd('seeding');
   process.exit(0);
 });
+
