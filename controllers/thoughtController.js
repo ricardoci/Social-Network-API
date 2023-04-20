@@ -1,5 +1,5 @@
-const { Schema, Types } = require('mongoose');
-const { Thought, reactionSchema } = require('../models');
+const {  Types } = require('mongoose');
+const { Thought, Reaction } = require('../models');
 
 module.exports = {
   async getThought(req, res) {
@@ -82,18 +82,19 @@ module.exports = {
 
   async deleteReaction(req, res) {
     try {
-      const thought = await Thought.findByIdAndUpdate(
+      const thoughts = await Thought.findByIdAndUpdate(
         { _id: req.params.thoughtId },
-        { $pull: { reactions: { reactionId: req.params.reactionId } } },
+        { $pull: { reactions: { reactionId: req.params.reactionsId } } },
         { new: true }
       );
-      if (!thought) {
+      if (!thoughts) {
         return res.status(404).json({ message: 'No thought with that ID' });
       }
-      res.json(thought);
+      res.json(thoughts);
     } catch (err) {
       console.error(err);
       res.status(500).json(err);
     }
   }
+
 };
