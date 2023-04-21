@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const Friend = require('../models/friendsShema');
+const { Types } = require('mongoose');
+const mongoose = require('mongoose');
 
 
 module.exports = {
@@ -52,32 +54,20 @@ async addFriend(req, res) {
   try {
     const { friendUsername } = req.body;
 
-    // find the user and the friend
-    const user = await User.findById(req.params.userId);
+    // Check if the friend exists
     const friend = await User.findOne({ username: friendUsername });
-
-    if (!user) {
-      return res.status(404).json({ message: 'No user with that ID' });
-    }
-
     if (!friend) {
       return res.status(404).json({ message: 'No friend with that username' });
     }
 
-    // create a new friend relationship
-    const friendData = await Friend.create({
-      username: user.username,
-      friendUsername: friend.username
-    });
-
-    // update the user's friends array
+    // Get the user and add the friend to their friend list
     const updatedUser = await User.findByIdAndUpdate(
       { _id: req.params.userId },
-      { $push: { friends: friendData._id } },
+      { $addToSet: { friends: friend._id } },
       { new: true }
-    );
+    ).populate('friends');
 
-    res.json(updatedUser);
+    res.json(updatedUser.friends);
   } catch (err) {
     console.error(err);
     res.status(500).json(err);
@@ -87,43 +77,37 @@ async deleteFriend(req, res) {
   try {
     const { friendId } = req.params;
 
-    // find the user and the friend
-    const user = await User.findById(req.params.userId);
-    const friend = await Friend.findById(friendId);
-
-    if (!user) {
-      return res.status(404).json({ message: 'No user with that ID' });
-    }
-
-    if (!friend) {
-      return res.status(404).json({ message: 'No friend with that ID' });
-    }
-
-    // remove the friend relationship
-    await Friend.findByIdAndDelete(friendId);
-
-    // update the user's friends array
+    // Get the user and remove the friend from their friend list
     const updatedUser = await User.findByIdAndUpdate(
       { _id: req.params.userId },
       { $pull: { friends: friendId } },
       { new: true }
-    );
+    ).populate('friends');
 
-    res.json(updatedUser);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'No user with that ID' });
+    }
+
+    res.json(updatedUser.friends);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-},
+}
+
+,
+
+
 async getFriend(req, res) {
   try {
     const user = await User.findById(req.params.userId).populate('friends');
     res.json(user.friends);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
+
 
 
 

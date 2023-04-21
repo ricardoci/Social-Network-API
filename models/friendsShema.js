@@ -10,6 +10,10 @@ const friendSchema = new Schema(
       type: String,
       required: true,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -18,9 +22,6 @@ const friendSchema = new Schema(
   }
 );
 
-function formatDate(timestamp) {
-  return new Date(timestamp).toISOString();
-}
 
 const Friend = model('Friend', friendSchema);
 
